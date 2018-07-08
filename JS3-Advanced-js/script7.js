@@ -63,6 +63,7 @@ var citiesQueryBuilder = (function(dbTable) {
         return theQuery;
     }
     
+    // Public
     return function(params, field, operator) {
         return queryBuilder(params, field, operator)        
     }    
