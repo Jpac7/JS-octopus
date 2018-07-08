@@ -49,17 +49,27 @@ designerQuestion('Alfred')
 teacherQuestion('Peter')
 
 
-var citiesQuery = (function(dbTable) {
-    var query = 'Select * from ' + dbTable + ' where';
+var citiesQueryBuilder = (function(dbTable) {
+    const query = 'Select * from ' + dbTable + ' where';
     
-    return function(params) {        
-        Object.keys(params).forEach(function(param) {
-            query += param + '=' + params[param] + ';'
+    // Private
+    const queryBuilder = function(params, field, operator) {
+        console.log(operator)
+        let theQuery = query
+        params.forEach(function(param, index) {           
+            theQuery += ' ' + field + '=' + param
+            if (index !== params.length - 1) theQuery += ' ' + operator;
         })
-        console.log(query)        
+        return theQuery;
     }
+    
+    return function(params, field, operator) {
+        return queryBuilder(params, field, operator)        
+    }    
 })('cities')
 
-citiesQuery({city: 'berlin', city: 'praga', city: 'moscow'})
-citiesQuery({city: 'hamburg', city: 'luanda'})
+const query1 = citiesQueryBuilder(['berlin', 'praga', 'moscow'], 'city', 'and')
+const query2 = citiesQueryBuilder(['hamburg', 'luanda'], 'city', 'or')
+console.log(query1)
+console.log(query2)
 
