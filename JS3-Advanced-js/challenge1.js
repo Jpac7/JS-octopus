@@ -1,21 +1,23 @@
-function game () {
-    
-    var gameQuestions = []
+(function /*game*/ () {
     
     var gameScore = (function () {
         var score = 0
         
-        return {
+        return function(increment) {
+            if (increment) score++;
+            return score;
+        }
+        /*return {
             increment: function () {
-                score += 1
+                score++;
             },
             get: function () {
                 return score;
             }
-        }
+        }*/
     })()
     
-    var Question = function (question, answers, correctAnswer) {
+    function Question (question, answers, correctAnswer) {
         this.question = question
         this.answers = answers
         this.correctAnswer = correctAnswer
@@ -28,43 +30,56 @@ function game () {
         })
     }
     
-    Question.prototype.isAnswerCorrect = function(answer) {       
-        return this.correctAnswer === answer;        
+    Question.prototype.checkAnswer = function(answer/*, cb*/) {       
+        return answer === this.correctAnswer;
     }
     
-    var gameTurn = function() {
-        var questionIndex = Math.floor(Math.random() * gameQuestions.length)
-        gameQuestions[questionIndex].displayQuestion()
-        var userAnswer = prompt('What is your answer to this question (enter the index)? Or enter quit (or exit) to finish.')
-        if (userAnswer === 'q' || userAnswer === 'quit' || userAnswer === 'exit') {
-            console.log('-----------------------------------------------------')
-            console.log('| God game mate! You have finished it with ' + gameScore.get() + ' points. |')
-            console.log('-----------------------------------------------------')
-            return;
-        }
-        if (gameQuestions[questionIndex].isAnswerCorrect(Number(userAnswer))) {
-            gameScore.increment()
-            console.log('Correct answer: ' + gameQuestions[questionIndex].answers[Number(userAnswer)])
-        } else {
-            console.log('Incorrect answer. Try again!')
-        }    
-        console.log('Your current score: ' + gameScore.get())
+    /*
+    Question.prototype.displayScore = function(score) {
+        console.log('Your current score: ' + score)
         console.log('----------------------------------------------------------')
-        gameTurn()        
-    }
+    }*/
     
     var question1 = new Question('What is the tallest building in the world?', ['Shanghai Tower', 'Eiffel Tower', 'Burj Khalifa'], 2)
-    gameQuestions.push(question1)
     
     var question2 = new Question('How many countries there are in the world?', ['230','195', '206'], 1)
-    gameQuestions.push(question2)
     
     var question3 = new Question('What sport is not officially represented on Winter Olympic games?', ['Curling', 'Ice Hockey', 'Having naps'], 2)
-    gameQuestions.push(question3)        
+    
+    var gameQuestions = [question1, question2, question3];
+    
+    (function gameTurn() {
+        var n = Math.floor(Math.random() * gameQuestions.length)
+        gameQuestions[n].displayQuestion()
+        var userAnswer = prompt('What is your answer to this question (enter the index)? Or enter quit (or exit) to finish.')
+        if (userAnswer !== 'q' && userAnswer !== 'quit' && userAnswer !== 'exit') {            
+            var isCorrect = gameQuestions[n].checkAnswer(parseInt(userAnswer))
+            if (isCorrect) {
+                console.log('Correct answer: ' + gameQuestions[n].answers[userAnswer]);
+            } else {
+                console.log('Incorrect answer. Try again!');
+            }
+            var currentScore = gameScore(isCorrect); 
+            console.log('Your current score: ' + currentScore)
+            console.log('----------------------------------------------------------')
+            gameTurn()           
+        } else {
+            console.log('-----------------------------------------------------')
+            //console.log('| God game mate! You finished with ' + gameScore.get() + ' points. |')
+            console.log('| God game mate! You finished with ' + gameScore(false) + ' points. |')
+            console.log('-----------------------------------------------------')
             
+        }                  
+        //    gameScore.increment()        
+        //console.log('Your current score: ' + gameScore.get())                
+    })()
+    
+            
+    /*
     return {
         startGame: gameTurn
     }
-}
+    */
+})()
 
-game().startGame()
+/* game().startGame() */
