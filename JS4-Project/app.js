@@ -41,7 +41,7 @@ var budgetController = (function() {
             }
             
             data.allItems[type].push(newItem);
-            data.totals[type] += Number(val);
+            data.totals[type] += val;
             return newItem;
         },
         
@@ -70,7 +70,7 @@ var UIController = (function() {
             return {
                 type: document.querySelector(DOMStrings.inputType).value,
                 description: document.querySelector(DOMStrings.inputDescription).value,
-                value: document.querySelector(DOMStrings.inputValue).value                
+                value: parseFloat(document.querySelector(DOMStrings.inputValue).value)
             }
         },
         addListItem: function(obj, type) {
@@ -117,12 +117,13 @@ var controller = (function(budgetCtrl, UICtrl) {
         
         input = UICtrl.getInput();
         
-        newItem = budgetCtrl.addItem(input.type, input.description, input.value);
-        
-        UICtrl.addListItem(newItem, input.type);
-        
-        UICtrl.clearFields();
-        
+        if (input.description !== '' && !isNaN(input.value) && input.value !== 0) {
+            newItem = budgetCtrl.addItem(input.type, input.description, input.value);
+
+            UICtrl.addListItem(newItem, input.type);
+
+            UICtrl.clearFields();   
+        }                        
     }
     
     var setupEventListeners = function() {
