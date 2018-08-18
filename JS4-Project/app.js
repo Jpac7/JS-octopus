@@ -32,7 +32,7 @@ var budgetController = (function() {
     }
     
     return {       
-        addItem: function(type, des, val) {
+        addItem: function (type, des, val) {
             var newItem, ID;
                         
             // Create item id based on last id of the type
@@ -51,6 +51,19 @@ var budgetController = (function() {
             data.allItems[type].push(newItem);
             
             return newItem;
+        },
+        deleteItem: function (type, id) {
+            var ids, index;
+            
+            ids = data.allItems[type].map(function (current) {
+                return current.id;
+            })
+
+            index = ids.indexOf(id);
+
+            if(index !== -1) {
+                data.allItems[type].splice(index, 1);
+            }
         },
         calculateBudget: function () {
             calculateTotal('inc');
@@ -97,7 +110,7 @@ var UIController = (function() {
     }
     
     return {
-        getDOMStrings: function() {
+        getDOMStrings: function () {
             return DOMStrings;  
         },
         getInput: function() {
@@ -107,7 +120,7 @@ var UIController = (function() {
                 value: parseFloat(document.querySelector(DOMStrings.inputValue).value)
             }
         },
-        addListItem: function(obj, type) {
+        addListItem: function (obj, type) {
             var html, newHtml, element;
             
             if (type === 'inc') {
@@ -128,6 +141,10 @@ var UIController = (function() {
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
                         
         },
+        deleteListItem: function (selectorId) {
+            var el = document.getElementById(selectorId);
+            el.parentNode.removeChild(el);
+        },
         clearFields: function() {
             var fields, fieldsArr;            
             //document.querySelector(DOMStrings.inputType).value = 'inc';
@@ -145,7 +162,12 @@ var UIController = (function() {
             document.querySelector(DOMStrings.budgetLabel).textContent = obj.budget;
             document.querySelector(DOMStrings.incomeLabel).textContent = obj.totalInc;
             document.querySelector(DOMStrings.expensesLabel).textContent = obj.totalExp;
-            document.querySelector(DOMStrings.percentageLabel).textContent = obj.percentageSpent;
+
+            if (obj.percentageSpent > 0) {
+                document.querySelector(DOMStrings.percentageLabel).textContent = obj.percentageSpent + '%';
+            } else {
+                document.querySelector(DOMStrings.percentageLabel).textContent = '---';
+            }
         }
     }
 })()
@@ -191,10 +213,14 @@ var controller = (function(budgetCtrl, UICtrl) {
             splitId = itemId.split('-');
             
             type = splitId[0];
-            ID = splitId[1];
+            ID = parseInt(splitId[1]);
         }
 
-        // delete on Datamodel, remove from UI, updateBudget
+        budgetCtrl.deleteItem(type, ID);
+
+        UICtrl.deleteListItem(itemId);
+
+        updateBudget();
     }
     
     var updateBudget = function () {
