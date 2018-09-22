@@ -131,6 +131,7 @@ var UIController = (function() {
         expensesLabel: '.budget__expenses--value',
         percentageLabel: '.budget__expenses--percentage',
         container: '.container',
+        expensesPercLabel: '.item__percentage',
         dateLabel: '.budget__title--month'
     }
 
@@ -222,7 +223,7 @@ var UIController = (function() {
             }
         },
         displayPercentages: function(percentages) {
-            var fields = document.querySelectorAll('.item__percentage');
+            var fields = document.querySelectorAll(DOMStrings.expensesPercLabel);
 
             nodeListForEach(fields, function(cur, index) {
                 if (percentages[index] > 0) {
