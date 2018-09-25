@@ -47,6 +47,7 @@ const box6 = {
 }
 box6.clickMe();
 
+// Be carefull with arrow functions!!!
 /*
 const box66 = {
     color: 'green',
@@ -58,4 +59,31 @@ const box66 = {
 }
 box66.clickMe();
 */
+
+
+function Person(name) {
+    this.name = name;
+}
+
+// ES5
+Person.prototype.myFriends5 = function(friends) {
+    var arr = friends.map(function(el) {
+        return this.name + ' is friends with ' + el;
+    }.bind(this));
+
+    console.log(arr);
+}
+
+var friends = ['Susan', 'Leonard', 'Billy'];
+new Person('Tyson').myFriends5(friends);
+
+// ES6
+Person.prototype.myFriends6 = function(friends) {
+    var arr = friends.map(el => `${this.name} is friends with ${el}`);
+
+    console.log(arr);
+}
+
+new Person('Michelle').myFriends6(friends);
+
 
