@@ -1,24 +1,3 @@
-/*Town
-    -structure for different els
-    -print els reports 
-    -Average age of parks
-    -Name of park with more than 1000 trees
-    -Total and average length of streets
-    -Size classification of streets
-
-Townelement
-    -properties name and build year
-
-Street
-    -extends Townelement
-    -properties: length
-
-Park 
-    -extends Townelement
-    -properties: area, trees
-    -calcTreeDensity
-    */
-
 class TownElement {
     constructor(name, buildYear) {
         this.name = name;
@@ -27,30 +6,27 @@ class TownElement {
 }
 
 class Street extends TownElement {
-    constructor(name, buildYear, length) {
+    constructor(name, buildYear, length, size = 3) {
         super(name, buildYear);
         this.length = length;
+        this.size = size;
     }
 
-    sizeClass() {
-        if (this.length >= 4) {
-            return 'huge';
-        } else if (this.length >= 2) {
-            return 'big';
-        } else if (this.length >= 1) {
-            return 'normal';
-        } else if (this.length >= 0.5) {
-            return 'small';
-        } else {
-            return 'tiny';
-        }
+    classifySize() {
+        const classification = new Map();
+        classification.set(1, 'tiny');
+        classification.set(2, 'small');
+        classification.set(3, 'normal');
+        classification.set(4, 'big');
+        classification.set(5, 'huge');
+        return classification.get(this.size);
     }
 }
 
 class Park extends TownElement {
     constructor(name, buildYear, area, trees) {
         super(name, buildYear);
-        this.area = area;
+        this.area = area; // Km2
         this.trees = trees;
     }
 
@@ -64,61 +40,53 @@ class Park extends TownElement {
 }
 
 class TownAdmin {
-    constructor(parks = [], streets = []) {
-        this.townElements = new Map([[1, parks], [2, streets]]);
+    constructor() {
+        this.parks = [];
+        this.streets = [];
     }
 
-    addTownElements(...newEls) {
-        newEls.forEach(cur => {
-            if (typeof(cur) === 'Park') {
-                this.townElements[1].push(cur);
-            } else if (typeof(cur) === 'Street') {
-                this.townElements[2].push(cur);
+    addTownElements(newEls) {
+        newEls.forEach(cur => {            
+            const type = cur.constructor.name;
+            if (type === 'Park') {
+                this.parks.push(cur);
+            } else if (type === 'Street') {
+                this.streets.push(cur);
             }
-        })
+        });        
+        return this;
     }
 
-    calcParksAverageAge() {
-        const parks = this.townElements.get(1);
-        const agesTotal = parks.reduce((ages, cur) => ages + cur.age(), 0);
-        return [parks.length, agesTotal/parks.length];
+    calcAverage(arr) {
+        const total = arr.reduce((acc, cur) => acc + cur, 0);
+        return [total, total / arr.length];
     }
 
-    findParkThousandTrees() {
-        return this.townElements.get(1).find(el => el.trees > 1000);
-    }
-
-    calcStreetsAverageLength() {
-        const streets = this.townElements.get(2);
-        const totalLength = streets.reduce((lengths, cur) => lengths + cur.length, 0);
-        return [streets.length, totalLength, totalLength/streets.length];
-    }
-
-    printReport() {
+    printParksReport() {
         console.log(`----- PARKS REPORT -----`);
-        const [parks, averageAge] = this.calcParksAverageAge();
-        console.log(`Our ${parks} parks have an average age of ${averageAge} years.`);
-        this.townElements.get(1).forEach(el => console.log(`${el.name} has a tree density of ${el.treeDensity()} trees per square km.`));
-        console.log(`${this.findParkThousandTrees().name} has more than 1,000 trees.`);
+        const [totalAge, avgAge] = this.calcAverage(this.parks.map(el => el.age()));
+        console.log(`Our ${this.parks.length} parks have an average age of ${avgAge} years.`);
+        this.parks.forEach(el => console.log(`${el.name} has a tree density of ${el.treeDensity()} trees per square km.`));
+        console.log(`${parks.find(el => el.trees > 1000).name} has more than 1,000 trees.`);
+        return this;
+    }
 
+    printStreetsReport() {
         console.log(`----- STREETS REPORT -----`);
-        const [streets, totalLength, averageLength] = this.calcStreetsAverageLength();
-        console.log(`Our ${streets} streets have a total length of ${totalLength} km, with an average of ${averageLength} km.`)
-        this.townElements.get(2).forEach(el => console.log(`${el.name}, built in ${el.buildYear}, is a ${el.sizeClass()} street.`))
+        const [totalLength, avgLength] = this.calcAverage(this.streets.map(el => el.length));
+        console.log(`Our ${this.streets.length} streets have a total length of ${totalLength} km, with an average of ${avgLength} km.`)
+        this.streets.forEach(el => console.log(`${el.name}, built in ${el.buildYear}, is a ${el.classifySize()} street.`));
+        return this;
     }
 }
 
-//parks
-const greenPark = new Park('Green Park', 1956, 0.8, 999);
-const nationalPark = new Park('National Park', 1920, 3, 6200);
-const oakPark = new Park('Oak Park', 1973, 0.9, 975);
+const parks = [new Park('Green Park', 1956, 0.8, 999),
+                new Park('National Park', 1920, 3, 6200),
+                new Park('Oak Park', 1973, 0.9, 975)];
 
-//streets
-const oceanAvenue = new Street('Ocean Avenue', 1999, 2.1);
-const evergreenStreet = new Street('Evergreen Street', 2008, 0.6);
-const fourthStreet = new Street('4th Street', 2015, 1);
-const sunsetBoulervard = new Street('Sunset Boulevard', 1982, 4.2);
+const streets = [new Street('Ocean Avenue', 1999, 2.1, 4),
+                    new Street('Evergreen Street', 2008, 0.6, 2),
+                    new Street('4th Street', 2015, 1),
+                    new Street('Sunset Boulevard', 1982, 4.2, 5)];
 
-const parks = [greenPark, nationalPark, oakPark];
-const streets = [oceanAvenue, evergreenStreet, fourthStreet, sunsetBoulervard];
-new TownAdmin(parks, streets).printReport();
+new TownAdmin().addTownElements([...parks, ...streets]).printParksReport().printStreetsReport();
