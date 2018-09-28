@@ -1,0 +1,16 @@
+[
+    {
+       "name":"Radiohead",
+       "albums":[
+          "The King of Limbs",
+          "OK Computer"
+       ]
+    },
+    {
+       "name":"Portishead",
+       "albums":[
+          "Dummy",
+          "Third"
+       ]
+    }
+ ]
